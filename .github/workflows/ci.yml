@@ -1,4 +1,4 @@
-name: .NET
+name: .NET CI/CD
 
 on:
   push:
@@ -7,13 +7,14 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-deploy:
-
+  build:
+    name: Build and Test
     runs-on: ubuntu-latest
 
     steps:
-    - name: actions/checkout@v4
+    - name: Checkout source code
       uses: actions/checkout@v4
+
     - name: Setup .NET SDK manually
       run: |
         wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
@@ -21,15 +22,40 @@ jobs:
         ./dotnet-install.sh --version 8.0.100
         echo "$HOME/.dotnet" >> $GITHUB_PATH
         export PATH="$HOME/.dotnet:$PATH"
+
     - name: Restore dependencies
       run: dotnet restore
+
     - name: Build
       run: dotnet build --no-restore --configuration Release
+
     - name: Test
       run: dotnet test --no-build --verbosity normal
-    - name : Build and push Docker image
+
+    - name: Upload Dockerfile and context
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-context
+        path: .dockerfile
+
+  docker_push:
+    name: Build and Push Docker Image
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout repo (needed for context)
+      uses: actions/checkout@v4
+
+    - name: Download Docker context
+      uses: actions/download-artifact@v4
+      with:
+        name: docker-context
+
+    - name: Build and push Docker image
       uses: mr-smithers-excellent/docker-build-push@v6
-      with: 
+      with:
         image: vitaliyminaev/hello-world
         registry: docker.io
         dockerfile: .dockerfile
