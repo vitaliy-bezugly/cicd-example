@@ -9,7 +9,7 @@ public class AssemblyInfo
     public string GetVersion()
     {
         var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-        if(version != null)
+        if (version != null)
         {
             return $"{version.Major}.{version.Minor}.{version.Build}";
         }

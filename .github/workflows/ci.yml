@@ -36,7 +36,8 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: docker-context
-        path: .dockerfile
+        path: |
+          .dockerfile
 
   docker_push:
     name: Build and Push Docker Image
