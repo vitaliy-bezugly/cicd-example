@@ -32,13 +32,6 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
 
-    - name: Upload Dockerfile and context
-      uses: actions/upload-artifact@v4
-      with:
-        name: docker-context
-        path: |
-          .dockerfile
-
   docker_push:
     name: Build and Push Docker Image
     needs: build
@@ -48,11 +41,6 @@ jobs:
     steps:
     - name: Checkout repo (needed for context)
       uses: actions/checkout@v4
-
-    - name: Download Docker context
-      uses: actions/download-artifact@v4
-      with:
-        name: docker-context
 
     - name: Build and push Docker image
       uses: mr-smithers-excellent/docker-build-push@v6
