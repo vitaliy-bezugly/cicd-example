@@ -48,6 +48,13 @@ jobs:
         VERSION=$(grep -oP '<Version>\K[^<]+' HelloWorld.Console/HelloWorld.Console.csproj)
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Extracted version: $VERSION"
+      
+    - name: Extract branch name
+      id: extract_branch
+      run: |
+        BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}")
+        echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+        echo "Extracted branch name: $BRANCH_NAME"
 
     - name: Build and push Docker image
       uses: mr-smithers-excellent/docker-build-push@v6
@@ -57,4 +64,4 @@ jobs:
         dockerfile: .dockerfile
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        tags: latest, ${{ env.VERSION }}
+        tags: ${{ env.BRANCH_NAME }}-${{ env.VERSION }}
