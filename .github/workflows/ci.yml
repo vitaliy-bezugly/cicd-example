@@ -77,11 +77,16 @@ jobs:
     - name: Build Docker image
       run: |
         IMAGE_TAG="docker.io/${{ secrets.DOCKER_USERNAME }}/hello-world:${BRANCH_NAME}-${COMMIT_HASH}-${VERSION}v"
+        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+        echo "Extracted IMAGE_TAG: $IMAGE_TAG"
+
         LATEST_TAG="docker.io/${{ secrets.DOCKER_USERNAME }}/hello-world:latest"
+        echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
         docker build --file Dockerfile --tag "$IMAGE_TAG" --tag "$LATEST_TAG" .
       
     - name: Debug IMAGE_TAG
-      run: echo "IMAGE_TAG=«$IMAGE_TAG»"
+      run: echo "IMAGE_TAG=$IMAGE_TAG"
     
     - name: Push Docker image
       run: |
