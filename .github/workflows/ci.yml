@@ -78,7 +78,6 @@ jobs:
       run: |
         IMAGE_TAG="docker.io/${{ secrets.DOCKER_USERNAME }}/hello-world:${BRANCH_NAME}-${COMMIT_HASH}-${VERSION}v"
         echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-        echo "Extracted IMAGE_TAG: $IMAGE_TAG"
 
         LATEST_TAG="docker.io/${{ secrets.DOCKER_USERNAME }}/hello-world:latest"
         echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
