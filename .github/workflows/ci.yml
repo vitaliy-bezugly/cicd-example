@@ -22,6 +22,12 @@ jobs:
         ./dotnet-install.sh --version 8.0.100
         echo "$HOME/.dotnet" >> $GITHUB_PATH
         export PATH="$HOME/.dotnet:$PATH"
+    
+    - name: Cache nuget packages
+      uses: actions/cache@v3
+      with: 
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
 
     - name: Restore dependencies
       run: dotnet restore
@@ -59,16 +65,22 @@ jobs:
     - name: Extract commit hash
       id: extract_hash
       run: |
-        COMMIT_HASH=$(echo "${GITHUB_SHA}" | cut -c1-8)
+        COMMIT_HASH=$(echo "${GITHUB_SHA}" | cut -c1-6)
         echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
         echo "Extracted commit hash: $COMMIT_HASH"
 
-    - name: Build and push Docker image
-      uses: mr-smithers-excellent/docker-build-push@v6
-      with:
-        image: vitaliyminaev/hello-world
-        registry: docker.io
-        dockerfile: .dockerfile
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        tags: ${{ env.BRANCH_NAME }}-${{ env.COMMIT_HASH }}-${{ env.VERSION }}v
+    - name: Log in to Docker Hub
+      run: |
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login docker.io \
+          --username "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+    
+    - name: Build Docker image
+      run: |
+        IMAGE_TAG="docker.io/${{ secrets.DOCKER_USERNAME }}/hello-world:${BRANCH_NAME}-${BRANCH_NAME}-${VERSION}v"
+        LATEST_TAG="docker.io/${{ secrets.DOCKER_USERNAME }}/hello-world:latest"
+        docker build --file Dockerfile --tag "$IMAGE_TAG" --tag "$LATEST_TAG"
+    
+    - name: Push Docker image
+      run: |
+        docker push "$IMAGE_TAG"
+        docker push "$LATEST_TAG"
