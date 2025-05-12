@@ -55,6 +55,13 @@ jobs:
         BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}")
         echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
         echo "Extracted branch name: $BRANCH_NAME"
+      
+    - name: Extract commit hash
+      id: extract_hash
+      run: |
+        COMMIT_HASH=$(eho "${GITHUB_SHA} | cut -c1-8")
+        echo "COMMIT_HASH=$COMMIT_HASH" >> GITHUB_ENV
+        echo "Extracted commit hash: $COMMIT_HASH"
 
     - name: Build and push Docker image
       uses: mr-smithers-excellent/docker-build-push@v6
@@ -64,4 +71,4 @@ jobs:
         dockerfile: .dockerfile
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        tags: ${{ env.BRANCH_NAME }}-${{ env.VERSION }}
+        tags: ${{ env.BRANCH_NAME }}-${{ env.COMMIT_HASH }}-${{ env.VERSION }}v
