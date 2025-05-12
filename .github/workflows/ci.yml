@@ -59,8 +59,8 @@ jobs:
     - name: Extract commit hash
       id: extract_hash
       run: |
-        COMMIT_HASH=$(eho "${GITHUB_SHA} | cut -c1-8")
-        echo "COMMIT_HASH=$COMMIT_HASH" >> GITHUB_ENV
+        COMMIT_HASH=$(echo "${GITHUB_SHA}" | cut -c1-8)
+        echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
         echo "Extracted commit hash: $COMMIT_HASH"
 
     - name: Build and push Docker image
